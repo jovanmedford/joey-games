@@ -1,6 +1,6 @@
 /* eslint-disable */
 export default {
-  displayName: 'joey-games',
+  // displayName: ['joey-games'],
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
   transform: {

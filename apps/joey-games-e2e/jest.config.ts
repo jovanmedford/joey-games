@@ -1,6 +1,6 @@
 /* eslint-disable */
 export default {
-  displayName: 'joey-games-e2e',
+  // displayName: 'joey-games-e2e',
   preset: '../../jest.preset.js',
   globalSetup: '<rootDir>/src/support/global-setup.ts',
   globalTeardown: '<rootDir>/src/support/global-teardown.ts',
