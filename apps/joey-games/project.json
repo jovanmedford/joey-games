@@ -19,6 +19,14 @@
           "buildTarget": "joey-games:build:production"
         }
       }
+    },
+    "seed": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "cwd": "apps/joey-games",
+        "command": "npx ts-node --esm ./prisma/seed.ts"
+      }
     }
   }
 }
