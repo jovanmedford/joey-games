@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { AuthModule } from '../auth/auth.module';
+import {AppModule} from "../app/app.module"
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { emailExistsMessage, userExistsMessage } from '../lib/constants';
 
@@ -9,7 +9,7 @@ describe('signup form tests', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [AuthModule],
+      imports: [AppModule],
     }).compile();
 
     app = moduleRef.createNestApplication();
@@ -25,7 +25,7 @@ describe('signup form tests', () => {
         username: 'joeygames1',
         password: 'jo123',
       })
-      .expect(HttpStatus.OK)
+      .expect(HttpStatus.CREATED)
       .expect({ email: 'joey@games.com', username: 'joeygames1' });
   });
 
