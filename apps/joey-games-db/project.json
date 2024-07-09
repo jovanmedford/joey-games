@@ -4,6 +4,61 @@
   "sourceRoot": "joey-games-db/src",
   "projectType": "library",
   "tags": [],
-  "// targets": "to see all targets run: nx show project joey-games-db --web",
-  "targets": {}
+  "targets": {
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/joey-games-db",
+        "command": "docker-compose up -d"
+      }
+    },
+    "start-attached": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/joey-games-db",
+        "command": "docker-compose up"
+      }
+    },
+    "run-migrations": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/joey-games",
+        "command": "prisma migrate deploy"
+      }
+    },
+    "seed": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/joey-games",
+        "command": "npx ts-node ./prisma/seed.ts"
+      }
+    },
+
+    "setup": {
+      "executor": "nx:noop",
+      "dependsOn": ["run-migrations", "seed"],
+      "parallel": false
+    },
+    "down": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/joey-games-db",
+        "command": "docker-compose down"
+      }
+    },
+    "view": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/joey-games",
+        "command": "prisma studio"
+      }
+    },
+    "stop": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/joey-games-db",
+        "command": "docker-compose stop"
+      }
+    }
+  }
 }
