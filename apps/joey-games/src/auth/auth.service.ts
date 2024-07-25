@@ -1,16 +1,36 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { LoginDto, SignupDto } from './dto';
 import { emailExistsMessage, userExistsMessage } from '../lib/constants';
 import { PrismaService } from '../prisma/prisma.service';
 import * as argon from 'argon2';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { User } from '@prisma/client';
+import { getUserDto } from '../lib/utils';
 
 @Injectable()
 export class AuthService {
   constructor(private prisma: PrismaService) {}
 
-  login(loginInfo: LoginDto) {
-    return loginInfo;
+  async login(loginInfo: LoginDto) {
+    try {
+      const user: User = await this.prisma.user.findFirstOrThrow({
+        where: { email: loginInfo.email },
+      });
+      if (await argon.verify(user.password, loginInfo.password)) {
+        let userDto = getUserDto(user);
+        return userDto;
+      }
+    } catch (e) {
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === 'P2018') {
+          throw new UnauthorizedException();
+        }
+      }
+    }
   }
 
   async signup(signupInfo: SignupDto) {

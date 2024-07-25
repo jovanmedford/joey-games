@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { Test } from '@nestjs/testing';
-import {AppModule} from "../app/app.module"
+import { AppModule } from '../app/app.module';
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { emailExistsMessage, userExistsMessage } from '../lib/constants';
 
