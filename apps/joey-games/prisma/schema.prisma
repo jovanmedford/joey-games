@@ -21,3 +21,13 @@ model User {
   password  String
   username  String   @unique
 }
+
+model GameMeta {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String
+  imgUrl     String
+  minPlayers Int
+  maxPlayers Int
+  isPlayable Boolean
+}

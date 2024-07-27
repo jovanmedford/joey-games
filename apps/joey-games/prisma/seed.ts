@@ -18,6 +18,16 @@ async function main() {
       password: await argon.hash(process.env.JOEY_PASSWORD),
     },
   });
+  await prisma.gameMeta.create({
+    data: {
+      title: 'Memory Game',
+      description: 'Test your memory with this game.',
+      imgUrl: '../joey-games/assets/memory-game-logo.png',
+      minPlayers: 1,
+      maxPlayers: 4,
+      isPlayable: true,
+    },
+  });
   console.log('Seeding completed.');
 }
 
