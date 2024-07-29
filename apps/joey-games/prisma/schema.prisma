@@ -23,11 +23,11 @@ model User {
 }
 
 model GameMeta {
-  id          Int     @id @default(autoincrement())
+  id          String  @unique
   title       String
   description String
-  imgUrl     String
-  minPlayers Int
-  maxPlayers Int
-  isPlayable Boolean
+  imgUrl      String
+  minPlayers  Int
+  maxPlayers  Int
+  isPlayable  Boolean
 }

@@ -20,6 +20,7 @@ async function main() {
   });
   await prisma.gameMeta.create({
     data: {
+      id: 'memory_game',
       title: 'Memory Game',
       description: 'Test your memory with this game.',
       imgUrl: '../joey-games/assets/memory-game-logo.png',
