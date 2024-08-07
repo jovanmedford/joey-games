@@ -15,8 +15,10 @@ export default function Index() {
         `${process.env.NEXT_PUBLIC_ORIGIN}/api/auth/login`,
         {
           method: 'POST',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
+            
           },
           body: `email=${email}&password=${password}`,
         }
