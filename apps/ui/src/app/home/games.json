@@ -1,0 +1,29 @@
+[
+  {
+    "id": "memory-game",
+    "title": "Memorize",
+    "description": "A simple test of memory",
+    "imgUrl": "",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "isPlayable": true
+  },
+  {
+    "id": "tic-tac-toe",
+    "title": "Tic Tac Toe",
+    "description": "A simple test of memory",
+    "imgUrl": "",
+    "minPlayers": 1,
+    "maxPlayers": 2,
+    "isPlayable": false
+  },
+  {
+    "id": "ping-pong",
+    "title": "Ping Pong",
+    "description": "A simple test of memory",
+    "imgUrl": "",
+    "minPlayers": 1,
+    "maxPlayers": 2,
+    "isPlayable": false
+  }
+]
