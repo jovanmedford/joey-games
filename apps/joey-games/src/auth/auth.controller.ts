@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpException,
   HttpStatus,
@@ -9,10 +10,11 @@ import {
   Req,
   Res,
   Session,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, SignupDto, UserDto } from './dto';
-import { NextFunction, Request, Response } from 'express';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -25,11 +27,10 @@ export class AuthController {
     @Req() req: any,
     @Res() res: Response
   ) {
-  
     if (req.session.user) {
-      let user = req.session.user
-      res.send(user)
-      return
+      let user = req.session.user;
+      res.send(user);
+      return;
     }
 
     let user: UserDto | undefined = await this.authService.login(loginInfo);
@@ -41,7 +42,7 @@ export class AuthController {
         }
         req.session.user = user;
         req.session.save((err) => {
-          console.log(err)
+          console.log(err);
           res.send(user);
         });
       });
@@ -58,17 +59,20 @@ export class AuthController {
     return this.authService.signup(signupInfo);
   }
 
+  @Get('status')
+  getStatus(@Session() session) {
+    if (session.user) {
+      return session.user;
+    }
+    throw new UnauthorizedException();
+  }
+
   @Post('logout')
-  @HttpCode(200)
-  logout(
-    @Session() session: Record<string, any>,
-    @Res() res: Response,
-    @Next() next: NextFunction
-  ) {
-    session.user = null;
-    session.save((err) => {
-      if (err) next(err);
-      session.regenerate(() => res.redirect('/'));
+  logout(@Req() req: any, @Res() res: Response) {
+    req.session.user = null;
+    req.session.save((err) => {
+      if (err) console.log(err);
+      req.session.regenerate(() => res.send('Ok'));
     });
   }
 }
