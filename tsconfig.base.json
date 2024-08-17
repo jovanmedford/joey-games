@@ -14,7 +14,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@joey-games/joey-games-db": ["joey-games-db/src/index.ts"]
+      "@joey-games/joey-games-db": ["joey-games-db/src/index.ts"],
+      "@joey-games/lib": ["lib/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

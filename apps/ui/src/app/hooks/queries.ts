@@ -3,6 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { QueryClient } from '@tanstack/react-query';
 import { useToast } from '@chakra-ui/react';
+import { UserDto } from '@joey-games/lib';
 
 const queryClient = new QueryClient();
 
@@ -27,7 +28,7 @@ export function useLogin() {
 }
 
 export function useStatus() {
-  return useQuery({
+  return useQuery<UserDto>({
     queryKey: ['user'],
     queryFn: getStatus,
   });

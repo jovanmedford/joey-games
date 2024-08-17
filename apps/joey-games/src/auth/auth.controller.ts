@@ -13,7 +13,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDto, SignupDto, UserDto } from './dto';
+import { LoginDto, SignupDto } from './dto';
+import { UserDto } from '@joey-games/lib';
 import { Response } from 'express';
 
 @Controller('auth')

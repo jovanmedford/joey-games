@@ -1,4 +1,3 @@
-import { User } from '@prisma/client';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class LoginDto {
@@ -24,5 +23,3 @@ export class SignupDto {
   @IsNotEmpty()
   username: string;
 }
-
-export type UserDto = Pick<User, 'email' | 'id' | 'username'>;
