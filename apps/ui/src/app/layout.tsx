@@ -1,5 +1,6 @@
 import './global.css';
-import { ChakraProvider } from '@chakra-ui/react'
+import { ChakraProvider } from '@chakra-ui/react';
+import { Providers } from 'apps/ui/providers';
 
 export const metadata = {
   title: 'Welcome to ui',
@@ -14,9 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ChakraProvider>
-          {children}
-        </ChakraProvider>
+        <Providers>
+          <ChakraProvider>{children}</ChakraProvider>
+        </Providers>
       </body>
     </html>
   );
