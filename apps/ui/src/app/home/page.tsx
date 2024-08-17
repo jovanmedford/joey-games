@@ -1,13 +1,32 @@
+'use client';
+import Logout from 'apps/ui/icons/Logout';
 import GameCard from './game-card';
 import gameData from './games.json';
+import { useLogout, useStatus } from '../hooks/queries';
 
 export default function Index() {
   let mainTitle = gameData[0];
   let games = gameData.slice(1);
+
+  const { status, data: user, isError: statusError } = useStatus();
+  const logoutMutation = useLogout();
+
+  if (statusError) {
+    logoutMutation.mutate();
+  }
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
+  };
+
   return (
-    <div className="mx-4 my-4 xl:w-10/12 xl:mx-auto">
-      <header>
-        <span className="font-bold">joey123</span>
+    <div className="mx-4 my-8 xl:w-10/12 xl:mx-auto">
+      <header className="flex justify-between">
+        {status === 'success' ? (
+          <span className="font-bold">{user.username}</span>
+        ) : null}
+
+        <Logout handleLogout={handleLogout} />
       </header>
       <main>
         <h1 className="text-center mb-8 uppercase">joey games</h1>
@@ -21,11 +40,11 @@ export default function Index() {
             </section>
           </div>
           <div className="hidden lg:block col-start-10 col-end-13 border-slate-300 border-2 rounded-md">
-            <header className='py-2 px-4 border-b-2'>
+            <header className="py-2 px-4 border-b-2">
               <h2>Lobby</h2>
             </header>
-            <div className='pt-4 px-4'>
-              <p className='border-slate-300 text-center'>Empty</p>
+            <div className="pt-4 px-4">
+              <p className="border-slate-300 text-center">Empty</p>
             </div>
           </div>
         </section>

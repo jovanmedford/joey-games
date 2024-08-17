@@ -1,37 +1,21 @@
 'use client';
 import { useState } from 'react';
 import { Button, FormControl, FormLabel, Input, Stack } from '@chakra-ui/react';
+import { useLogin } from './hooks/queries';
 
 export default function Index() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const loginMutation = useLogin();
 
   const handleEmailChange = (e: any) => setEmail(e.target.value);
   const handlePasswordChange = (e: any) => setPassword(e.target.value);
 
-  const handleSubmit = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_ORIGIN}/api/auth/login`,
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            
-          },
-          body: `email=${email}&password=${password}`,
-        }
-      );
-      if (!response.ok) {
-        throw new Error();
-      }
-      let user = await response.json();
-      console.log(user);
-    } catch (e) {
-      console.log(e);
-    }
+  const handleSubmit = () => {
+    loginMutation.mutate({ email, password });
+    loginMutation.reset();
   };
+
   return (
     <div className="flex flex-col justify-center h-screen">
       <h1 className="text-center max-w-lg  mx-auto mb-12">Joey Games</h1>
