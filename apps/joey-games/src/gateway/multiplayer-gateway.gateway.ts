@@ -1,9 +1,13 @@
-import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
+import {
+  MessageBody,
+  SubscribeMessage,
+  WebSocketGateway,
+} from '@nestjs/websockets';
 
 @WebSocketGateway()
 export class MultiplayerGatewayGateway {
-  @SubscribeMessage('message')
-  handleMessage(client: any, payload: any): string {
-    return 'Hello world!';
+  @SubscribeMessage('ping')
+  handlePing(client: any, data: string): string {
+    return data;
   }
 }
