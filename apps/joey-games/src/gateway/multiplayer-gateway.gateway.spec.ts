@@ -2,41 +2,41 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MultiplayerGatewayGateway } from './multiplayer-gateway.gateway';
 import { INestApplication } from '@nestjs/common';
 import { Socket, io } from 'socket.io-client';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 describe('MultiplayerGatewayGateway', () => {
   let gateway: MultiplayerGatewayGateway;
   let app: INestApplication;
-  let ioClient: Socket;
+  let clientSocket: Socket;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [EventEmitterModule.forRoot()],
       providers: [MultiplayerGatewayGateway],
     }).compile();
 
     gateway = module.get<MultiplayerGatewayGateway>(MultiplayerGatewayGateway);
     app = module.createNestApplication();
-
-    ioClient = io('http://localhost:3000');
-
     app.listen(3000);
   });
 
-  afterAll(async () => {
-    await app.close();
-    ioClient.close()
+  beforeEach(() => {
+    clientSocket = io('http://localhost:3000');
   });
 
-  describe('Multiplayer Gateway', () => {
-    it('should emit pong on ping', async () => {
-      ioClient.connect();
-      ioClient.emit('ping', 'Hello world!');
-      ioClient.on('connect', () => {
-        console.log('connected');
-      });
-      ioClient.on('pong', (data) => {
-        expect(data).toBe('Hello world!');
-      });
-      ioClient.disconnect()
+  afterEach(() => {
+    clientSocket.disconnect();
+  });
+
+  afterAll(() => {
+    app.close();
+  });
+
+  it('should emit pong on ping', (done) => {
+    clientSocket.emit('ping', 'Hello World!');
+    clientSocket.on('pong', (data) => {
+      expect(data).toBe('Hello World!');
+      done();
     });
   });
 });
