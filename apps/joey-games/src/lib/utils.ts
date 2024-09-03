@@ -1,11 +1,19 @@
-import { UserDto } from '@joey-games/lib';
+import { PlayerData, PlayerStatus, UserDto } from '@joey-games/lib';
 import { User } from '@prisma/client';
 import { Socket } from 'socket.io-client';
-import { DisconnectDescription } from 'socket.io-client/build/esm/socket';
 
 export const getUserDto = (user: User): UserDto => {
   let { email, username } = user;
   return { email, username };
+};
+
+export const getNewPlayerData = (
+  user: User,
+  status: PlayerStatus = 'pending'
+): PlayerData => {
+  let player = getUserDto(user) as PlayerData;
+  player.status = status;
+  return player;
 };
 
 export class ClientConnectedEvent {
