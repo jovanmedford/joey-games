@@ -1,6 +1,6 @@
 import { PlayerData, PlayerStatus, UserDto } from '@joey-games/lib';
 import { User } from '@prisma/client';
-import { Socket } from 'socket.io-client';
+import { Socket } from 'socket.io';
 
 export const getUserDto = (user: User): UserDto => {
   let { email, username } = user;
