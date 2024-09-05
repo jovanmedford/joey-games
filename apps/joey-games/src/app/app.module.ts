@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { GameMetaModule } from '../game-meta/game-meta.module';
-import { MultiplayerGatewayGateway } from '../gateway/multiplayer-gateway.gateway';
+import { MultiplayerGatewayModule } from '../gateway/multiplayer-gateway.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
@@ -10,7 +10,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     AuthModule,
     PrismaModule,
     GameMetaModule,
-    MultiplayerGatewayGateway,
+    MultiplayerGatewayModule,
     EventEmitterModule.forRoot()
   ],
 })
