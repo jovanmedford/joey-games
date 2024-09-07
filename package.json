@@ -59,6 +59,7 @@
     "@types/react": "18.2.33",
     "@types/react-dom": "18.2.14",
     "@types/supertest": "^6.0.2",
+    "@types/uuid": "^10.0.0",
     "@types/web": "^0.0.151",
     "@typescript-eslint/eslint-plugin": "^7.3.0",
     "@typescript-eslint/parser": "^7.3.0",
