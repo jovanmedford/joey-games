@@ -1,9 +1,15 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { GameMetaModule } from '../game-meta/game-meta.module';
 import { MultiplayerGatewayModule } from '../gateway/multiplayer-gateway.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { AuthMiddleware } from '../middlewares/auth.middleware';
 
 @Module({
   imports: [
@@ -14,4 +20,11 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     EventEmitterModule.forRoot()
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthMiddleware)
+      .exclude({ path: '/auth/(.*)', method: RequestMethod.ALL })
+      .forRoutes('*');
+  }
+}
