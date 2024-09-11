@@ -1,6 +1,19 @@
 import { PlayerData, PlayerStatus, UserDto } from '@joey-games/lib';
 import { User } from '@prisma/client';
+import session from 'express-session';
 import { Socket } from 'socket.io';
+
+export const sessionMiddleWare = session({
+  name: 'login',
+  secret: process.env.LOGIN_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: false,
+    sameSite: 'none',
+    secure: true,
+  },
+});
 
 export const getUserDto = (user: User): UserDto => {
   let { email, username } = user;

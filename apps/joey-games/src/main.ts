@@ -5,9 +5,8 @@
 import * as fs from 'fs';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-
+import { sessionMiddleWare } from './lib/utils';
 import { AppModule } from './app/app.module';
-import session from 'express-session';
 
 const httpsOptions = {
   key: fs.readFileSync('./keys/server.key'),
@@ -17,19 +16,7 @@ const httpsOptions = {
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { httpsOptions });
   app.enableCors({ origin: `${process.env.UI_ORIGIN}`, credentials: true });
-  app.use(
-    session({
-      name: 'login',
-      secret: process.env.LOGIN_SECRET,
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        httpOnly: false,
-        sameSite: 'none',
-        secure: true,
-      },
-    })
-  );
+  app.use(sessionMiddleWare);
   app.useGlobalPipes(new ValidationPipe());
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
