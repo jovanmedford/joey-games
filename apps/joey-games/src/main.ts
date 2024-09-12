@@ -7,6 +7,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { sessionMiddleWare } from './lib/utils';
 import { AppModule } from './app/app.module';
+import { WsAdapter } from './adapters/ws.adapter';
 
 const httpsOptions = {
   key: fs.readFileSync('./keys/server.key'),
@@ -17,6 +18,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { httpsOptions });
   app.enableCors({ origin: `${process.env.UI_ORIGIN}`, credentials: true });
   app.use(sessionMiddleWare);
+  const adapter = new WsAdapter(app.getHttpServer());
+  app.useWebSocketAdapter(adapter);
   app.useGlobalPipes(new ValidationPipe());
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
