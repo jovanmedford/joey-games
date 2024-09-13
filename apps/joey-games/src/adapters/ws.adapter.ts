@@ -1,8 +1,16 @@
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { Server, ServerOptions } from 'socket.io';
-import { sessionMiddleWare } from '../lib/utils';
+import { INestApplicationContext, Injectable } from '@nestjs/common';
+import { SessionService } from '../session/session.service';
 
 export class WsAdapter extends IoAdapter {
+  private sessionService: SessionService;
+
+  constructor(app: INestApplicationContext) {
+    super(app);
+    this.sessionService = app.get(SessionService);
+  }
+
   createIOServer(port: number, options?: ServerOptions): any {
     options.allowRequest = async (request: any, allowFunction) => {
       if (request.session && request.session.user) {
@@ -11,7 +19,7 @@ export class WsAdapter extends IoAdapter {
       return allowFunction('FORBIDDEN', false);
     };
     let io = new Server(this.httpServer, options);
-    io.engine.use(sessionMiddleWare);
+    io.engine.use(this.sessionService.getMiddleware());
     return io;
   }
 }
