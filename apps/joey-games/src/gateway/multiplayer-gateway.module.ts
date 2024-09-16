@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { MultiplayerGatewayGateway } from './multiplayer-gateway.gateway';
+import { MultiplayerGateway } from './multiplayer.gateway';
 import { RoomMgrModule } from '../room-mgr/room-mgr.module';
 
 @Module({
   imports: [RoomMgrModule],
-  providers: [MultiplayerGatewayGateway],
+  providers: [MultiplayerGateway],
 })
 export class MultiplayerGatewayModule {}

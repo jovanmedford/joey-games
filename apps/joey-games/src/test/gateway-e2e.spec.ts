@@ -5,7 +5,7 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 import { Server, ServerOptions } from 'socket.io';
 import session from 'express-session';
 import { ClientToServerEvents, ServerToClientEvents } from '../lib/types';
-import { MultiplayerGatewayGateway } from '../gateway/multiplayer-gateway.gateway';
+import { MultiplayerGateway } from '../gateway/multiplayer.gateway';
 import { AppModule } from '../app/app.module';
 import request from 'supertest';
 
@@ -53,7 +53,7 @@ describe('Gateway e2e tests', () => {
     const adapter = new TestAdapter(app.getHttpServer());
     app.useWebSocketAdapter(adapter);
     await app.init();
-    server = app.get(MultiplayerGatewayGateway).server;
+    server = app.get(MultiplayerGateway).server;
     server.engine.use(testSessionMiddleWare);
     app.listen(3000);
   });

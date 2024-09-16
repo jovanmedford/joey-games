@@ -17,13 +17,13 @@ import { GatewayGuard } from '../guards/gateway.guard';
 
 @UseGuards(GatewayGuard)
 @WebSocketGateway()
-export class MultiplayerGatewayGateway
+export class MultiplayerGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
   server: Server;
 
-  private readonly logger = new Logger(MultiplayerGatewayGateway.name);
+  private readonly logger = new Logger(MultiplayerGateway.name);
 
   constructor(private eventEmitter: EventEmitter2) {}
 

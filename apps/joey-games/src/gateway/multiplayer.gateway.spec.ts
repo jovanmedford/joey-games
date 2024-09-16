@@ -1,21 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MultiplayerGatewayGateway } from './multiplayer-gateway.gateway';
+import { MultiplayerGateway } from './multiplayer.gateway';
 import { INestApplication } from '@nestjs/common';
 import { Socket, io } from 'socket.io-client';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
-describe('MultiplayerGatewayGateway', () => {
-  let gateway: MultiplayerGatewayGateway;
+describe('MultiplayerGateway', () => {
+  let gateway: MultiplayerGateway;
   let app: INestApplication;
   let clientSocket: Socket;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [EventEmitterModule.forRoot()],
-      providers: [MultiplayerGatewayGateway],
+      providers: [MultiplayerGateway],
     }).compile();
 
-    gateway = module.get<MultiplayerGatewayGateway>(MultiplayerGatewayGateway);
+    gateway = module.get<MultiplayerGateway>(MultiplayerGateway);
     app = module.createNestApplication();
     app.listen(3000);
   });
