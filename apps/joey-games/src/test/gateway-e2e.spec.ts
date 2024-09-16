@@ -34,7 +34,7 @@ class TestAdapter extends IoAdapter {
   }
 }
 
-describe('MultiplayerGatewayGateway', () => {
+describe('Gateway e2e tests', () => {
   let app: INestApplication;
   let client: ClientSocket<ServerToClientEvents, ClientToServerEvents>;
   let server: Server;
@@ -65,8 +65,8 @@ describe('MultiplayerGatewayGateway', () => {
   it('should block handshake if not logged in', (done) => {
     client = io('http://localhost:3000');
     client.on('connect_error', (err) => {
-      expect(err).toBeDefined()
-      client.disconnect()
+      expect(err).toBeDefined();
+      client.disconnect();
       done();
     });
   });
@@ -85,7 +85,35 @@ describe('MultiplayerGatewayGateway', () => {
         });
         server.on('connection', (socket: any) => {
           expect(socket.request.session.user.email).toBe(testUser.email);
-          client.disconnect()
+          client.disconnect();
+          done();
+        });
+      });
+  });
+
+  it('should get blocked if logged out and tries to send an event', (done) => {
+    request(app.getHttpServer())
+      .post('/auth/login')
+      .send(testUser)
+      .then((response) => {
+        expect(response.status).toBe(200);
+        const cookie = response.headers['set-cookie'][0];
+        client = io('http://localhost:3000', {
+          extraHeaders: {
+            Cookie: cookie,
+          },
+        });
+
+        client.on('connect', () => {
+          request(app.getHttpServer())
+            .post('/auth/logout')
+            .then(() => {
+              client.emit('create_room');
+            });
+        });
+
+        client.on('exception', (error) => {
+          expect(error.status).toBe('error');
           done();
         });
       });

@@ -2,14 +2,13 @@ import { UserDto } from '@joey-games/lib';
 import { Request } from 'express';
 
 /** Sockets */
-import { Response } from 'express';
-
 export interface ClientToServerEvents {
-  create: () => void;
+  create_room: () => void;
 }
 
 export interface ServerToClientEvents {
   exception: (err: WsErrorResponse) => void;
+  new_room: (id: string) => void;
 }
 
 export interface WsErrorResponse {
