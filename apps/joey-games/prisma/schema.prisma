@@ -14,12 +14,13 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  email     String   @unique
-  password  String
-  username  String   @unique
+  id            Int          @id @default(autoincrement())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  email         String       @unique
+  password      String
+  username      String       @unique
+  invitation_to Invitation[]
 }
 
 model GameMeta {
@@ -30,4 +31,19 @@ model GameMeta {
   minPlayers  Int
   maxPlayers  Int
   isPlayable  Boolean
+}
+
+model Invitation {
+  id            Int              @id @default(autoincrement())
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  roomId        String
+  invitedPlayer User             @relation(fields: [to], references: [email])
+  to            String
+  status        InvitationStatus?
+}
+
+enum InvitationStatus {
+  accepted
+  declined
 }
