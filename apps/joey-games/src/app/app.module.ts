@@ -11,6 +11,7 @@ import { MultiplayerGatewayModule } from '../gateway/multiplayer-gateway.module'
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { SessionModule } from '../session/session.module';
+import { InvitationModule } from '../invitation/invitation.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { SessionModule } from '../session/session.module';
     PrismaModule,
     SessionModule,
     GameMetaModule,
+    InvitationModule,
     MultiplayerGatewayModule,
     EventEmitterModule.forRoot()
   ],
