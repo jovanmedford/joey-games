@@ -13,6 +13,15 @@ export class Room {
     this.host = host;
     this.players = new Map<string, PlayerData>();
   }
+
+  setPlayerStatus(playerId: string, status: PlayerStatus) {
+    let player = this.players.get(playerId)
+    if (player) {
+      player.status = status
+    } else {
+      console.log("Player not found.")
+    }
+  }
 }
 
 export interface PlayerData extends UserDto {

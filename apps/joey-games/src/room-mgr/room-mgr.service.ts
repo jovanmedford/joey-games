@@ -17,6 +17,14 @@ export class RoomMgrService {
     this.rooms = new Map();
   }
 
+  getRoom(roomId: string): Room | undefined{
+    return this.rooms.get(roomId);
+  }
+
+  deleteRoom(roomId: string) {
+    return this.rooms.delete(roomId)
+  }
+
   async createRoom(host: string): Promise<Result<Room>> {
     let newRoom = new Room(host);
     this.rooms.set(newRoom.id, newRoom);

@@ -1,12 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { InvitationStatus } from '@prisma/client';
+import { Invitation, InvitationStatus } from '@prisma/client';
+import { InvitationReply as InvitationReply } from '../lib/types';
+import { Result } from '@joey-games/lib';
+import { createFailureResult, createSuccessResult } from '../lib/utils';
 
 @Injectable()
 export class InvitationService {
   constructor(private prisma: PrismaService) {}
 
   async createInvitation(to: string, roomId: string) {
+    let pendingInvitation = await this.findPendingInvitation(to, roomId);
+    if (pendingInvitation) return pendingInvitation;
+    
     let invitation = await this.prisma.invitation.create({
       data: {
         roomId,
@@ -16,7 +22,7 @@ export class InvitationService {
     return invitation;
   }
 
-  async updateInvitationStatus(invitationId: number, status: InvitationStatus) {
+  async updateInvitationStatus({invitationId,  status}: InvitationReply)  {
     let updatedInvitation = await this.prisma.invitation.update({
       where: {
         id: invitationId,
@@ -26,5 +32,16 @@ export class InvitationService {
       },
     });
     return updatedInvitation;
+  }
+
+  async findPendingInvitation(to: string, roomId: string) {
+    let pendingInvitation: Invitation = await this.prisma.invitation.findFirst({
+      where: {
+        roomId,
+        to,
+        status: null,
+      },
+    });
+    return pendingInvitation
   }
 }
