@@ -1,4 +1,4 @@
-import { PlayerData, PlayerStatus, UserDto } from '@joey-games/lib';
+import { Failure, PlayerData, PlayerStatus, Success, UserDto } from '@joey-games/lib';
 import { User } from '@prisma/client';
 import session from 'express-session';
 import { Socket } from 'socket.io';
@@ -22,7 +22,7 @@ export const getUserDto = (user: User): UserDto => {
 
 export const getNewPlayerData = (
   user: User,
-  status: PlayerStatus = 'pending'
+  status: PlayerStatus = 'inactive'
 ): PlayerData => {
   let player = getUserDto(user) as PlayerData;
   player.status = status;
@@ -44,3 +44,11 @@ export class ClientDisconnectedEvent {
     this.client = client;
   }
 }
+
+export const createSuccessResult = <T>(obj: T): Success<T> => {
+  return { success: true, data: obj };
+};
+
+export const createFailureResult = (message: string): Failure => {
+  return { success: false, message: message };
+};

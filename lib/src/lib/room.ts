@@ -27,5 +27,5 @@ export class Room {
 export interface PlayerData extends UserDto {
   status: PlayerStatus;
 }
-export type PlayerStatus = 'pending' | 'disconnected' | 'declined' | 'ready';
+export type PlayerStatus = 'disconnected' | 'inactive' | 'connected';
 export type Activity = 'lobby' | 'memoryGame';

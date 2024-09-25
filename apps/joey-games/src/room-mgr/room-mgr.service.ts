@@ -3,7 +3,6 @@ import {
   PlayerStatus,
   Result,
   Room,
-  UserDto,
 } from '@joey-games/lib';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -17,7 +16,7 @@ export class RoomMgrService {
     this.rooms = new Map();
   }
 
-  getRoom(roomId: string): Room | undefined{
+  getRoom(roomId: string): Room | undefined {
     return this.rooms.get(roomId);
   }
 
@@ -28,7 +27,7 @@ export class RoomMgrService {
   async createRoom(host: string): Promise<Result<Room>> {
     let newRoom = new Room(host);
     this.rooms.set(newRoom.id, newRoom);
-    let result = await this.addPlayerToRoomData(newRoom.id, host, 'ready');
+    let result = await this.addPlayerToRoomData(newRoom.id, host, 'connected');
     if (result.success) {
       return { success: true, data: newRoom };
     }
@@ -37,7 +36,7 @@ export class RoomMgrService {
   async addPlayerToRoomData(
     roomId: string,
     playerEmail: string,
-    status: PlayerStatus = 'pending'
+    status: PlayerStatus = 'inactive'
   ): Promise<Result<PlayerData>> {
     let room = this.rooms.get(roomId);
 

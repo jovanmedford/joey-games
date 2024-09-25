@@ -6,6 +6,7 @@ import { Invitation, InvitationStatus } from '@prisma/client';
 /** Sockets */
 export interface ClientToServerEvents {
   create_room: () => void;
+  join_room: ({ roomId }: { roomId: string }) => void;
   send_invitation: (to: string) => void;
   reply_to_invitation: ({ invitationId, status }: InvitationReply) => void;
   ping: (message: string) => void;

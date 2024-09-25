@@ -43,7 +43,7 @@ describe('RoomMgrService - room created successfully', () => {
     let foundPlayer = newRoom.players.get(player.email);
     expect(foundPlayer).toBeDefined();
     expect(foundPlayer.email).toBe(newEmail);
-    expect(foundPlayer.status).toBe('pending');
+    expect(foundPlayer.status).toBe('inactive');
   });
 });
 
