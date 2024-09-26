@@ -18,7 +18,9 @@ export class WsAdapter extends IoAdapter {
       }
       return allowFunction('FORBIDDEN', false);
     };
-    let io = new Server(this.httpServer, options);
+    let io = new Server(this.httpServer, {
+      cors: { origin: `${process.env.UI_ORIGIN}`, credentials: true },
+    });
     io.engine.use(this.sessionService.getMiddleware());
     return io;
   }
