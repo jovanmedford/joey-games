@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from '../lib/types';
+import { AuthenticatedRequest } from '@joey-games/lib';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {

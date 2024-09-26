@@ -8,7 +8,7 @@ import { Socket as client, io } from 'socket.io-client';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { Server, ServerOptions } from 'socket.io';
 import session from 'express-session';
-import { ClientToServerEvents, ServerToClientEvents } from '../lib/types';
+import { ClientToServerEvents, ServerToClientEvents } from '@joey-games/lib';
 import { MultiplayerGateway } from '../gateway/multiplayer.gateway';
 import { AppModule } from '../app/app.module';
 import request from 'supertest';

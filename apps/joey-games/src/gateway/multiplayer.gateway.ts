@@ -16,7 +16,7 @@ import { RoomGuard } from '../guards/room.guard';
 import { GatewayGuard } from '../guards/gateway.guard';
 import { RoomMgrService } from '../room-mgr/room-mgr.service';
 import { InvitationService } from '../invitation/invitation.service';
-import { AuthenticatedSocket, InvitationReply } from '../lib/types';
+import { AuthenticatedSocket, InvitationReply } from '@joey-games/lib';
 import { bufferPeriod } from '../lib/constants';
 
 @UseGuards(GatewayGuard)

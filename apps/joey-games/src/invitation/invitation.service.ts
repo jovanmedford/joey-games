@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Invitation, InvitationStatus } from '@prisma/client';
-import { InvitationReply as InvitationReply } from '../lib/types';
+import { InvitationReply } from '@joey-games/lib';
 import { Result } from '@joey-games/lib';
 import { createFailureResult, createSuccessResult } from '../lib/utils';
 
