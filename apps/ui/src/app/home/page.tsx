@@ -1,5 +1,5 @@
 'use client';
-import Logout from 'apps/ui/icons/Logout';
+import Logout from 'apps/ui/icons/logout';
 import GameCard from './game-card';
 import gameData from './games.json';
 import { useLogout, useStatus } from '../hooks/queries';
@@ -39,14 +39,7 @@ export default function Index() {
               ))}
             </section>
           </div>
-          <div className="hidden lg:block col-start-10 col-end-13 border-slate-300 border-2 rounded-md">
-            <header className="py-2 px-4 border-b-2">
-              <h2>Lobby</h2>
-            </header>
-            <div className="pt-4 px-4">
-              <p className="border-slate-300 text-center">Empty</p>
-            </div>
-          </div>
+          <Lobby />
         </section>
       </main>
     </div>
