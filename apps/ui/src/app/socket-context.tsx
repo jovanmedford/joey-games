@@ -8,6 +8,9 @@ const createSocket = () => {
     {
       autoConnect: false,
       withCredentials: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 2000,
+      reconnectionDelayMax: 10000,
     }
   );
   return socket;
