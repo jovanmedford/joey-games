@@ -35,4 +35,15 @@ export class SessionService {
   getStore(): Store {
     return this.store;
   }
+
+  getStoredSession(sessionId: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.store.get(sessionId, (err, session) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(session);
+      });
+    });
+  }
 }

@@ -14,21 +14,27 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, SignupDto } from './dto';
-import { UserDto } from '@joey-games/lib';
+import { AuthenticatedRequest, UserDto } from '@joey-games/lib';
 import { Response } from 'express';
+import { SessionService } from '../session/session.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private sessionService: SessionService
+  ) {}
 
   @Post('login')
   @HttpCode(200)
   async login(
     @Body() loginInfo: LoginDto,
-    @Req() req: any,
+    @Req() req: AuthenticatedRequest,
     @Res() res: Response
   ) {
-    if (req.session.user) {
+    let storedSession = await this.sessionService.getStoredSession(req.session.id);
+
+    if (storedSession && loginInfo?.email === storedSession?.user?.email) {
       let user = req.session.user;
       res.send(user);
       return;
@@ -47,12 +53,7 @@ export class AuthController {
           res.send(user);
         });
       });
-    } else {
-      throw new HttpException(
-        'The username or password you entered is incorrect',
-        HttpStatus.UNAUTHORIZED
-      );
-    }
+    } 
   }
 
   @Post('signup')

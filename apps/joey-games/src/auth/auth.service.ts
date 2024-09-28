@@ -23,6 +23,8 @@ export class AuthService {
       if (await argon.verify(user.password, loginInfo.password)) {
         let userDto = getUserDto(user);
         return userDto;
+      } else {
+        throw new UnauthorizedException();
       }
     } catch (e) {
       if (e instanceof PrismaClientKnownRequestError) {
@@ -30,6 +32,7 @@ export class AuthService {
           throw new UnauthorizedException();
         }
       }
+      throw e;
     }
   }
 
