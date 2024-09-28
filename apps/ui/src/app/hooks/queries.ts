@@ -4,15 +4,19 @@ import { useRouter } from 'next/navigation';
 import { QueryClient } from '@tanstack/react-query';
 import { useToast } from '@chakra-ui/react';
 import { UserDto } from '@joey-games/lib';
+import { Invitation } from '@prisma/client';
+import { useSocket } from '../socket-context';
 
 const queryClient = new QueryClient();
 
 export function useLogin() {
   const router = useRouter();
   const toast = useToast();
+  const socket = useSocket()
   return useMutation({
     mutationFn: login,
     onSuccess: () => {
+      socket.connect()
       router.push('/home');
     },
     onError: (data) => {
@@ -34,6 +38,13 @@ export function useStatus() {
   });
 }
 
+export function usePendingInvitations() {
+  return useQuery<Invitation[]>({
+    queryKey: ['pendingInvitations'],
+    queryFn: fetchPendingInvitations,
+  });
+}
+
 export function useLogout() {
   const router = useRouter();
   return useMutation({
@@ -43,6 +54,24 @@ export function useLogout() {
       router.push('/');
     },
   });
+}
+
+async function fetchPendingInvitations() {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_ORIGIN}/api/invitation/pending`,
+    {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    }
+  );
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message);
+  }
+  return response.json();
 }
 
 async function login({ email, password }: { email: string; password: string }) {

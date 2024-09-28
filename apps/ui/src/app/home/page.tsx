@@ -1,14 +1,50 @@
 'use client';
-import Logout from 'apps/ui/icons/Logout';
+import Logout from 'apps/ui/icons/logout';
 import GameCard from './game-card';
 import gameData from './games.json';
-import { useLogout, useStatus } from '../hooks/queries';
+import { useLogout, usePendingInvitations, useStatus } from '../hooks/queries';
+import Lobby from './lobby';
+import InvitationCard from './invitation-card';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+  useToast,
+} from '@chakra-ui/react';
+import { useEffect } from 'react';
+import { useSocket } from '../socket-context';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function Index() {
+  let queryClient = useQueryClient();
+  let socket = useSocket();
   let mainTitle = gameData[0];
   let games = gameData.slice(1);
+  let toast = useToast();
+
+  useEffect(() => {
+    socket.on('invited', (invitation) => {
+      toast({
+        status: 'info',
+        description: invitation.roomId,
+        title: 'You have a new invitation',
+      });
+      queryClient.invalidateQueries({ queryKey: ['pendingInvitations'] });
+    });
+
+    return () => {
+      socket.off('invited');
+    };
+  }, [socket]);
 
   const { status, data: user, isError: statusError } = useStatus();
+  const {
+    status: invitationStatus,
+    data: invitations,
+    isError: invitationError,
+  } = usePendingInvitations();
   const logoutMutation = useLogout();
 
   if (statusError) {
@@ -30,23 +66,35 @@ export default function Index() {
       </header>
       <main>
         <h1 className="text-center mb-8 uppercase">joey games</h1>
+        <Accordion allowToggle>
+          <AccordionItem>
+            <AccordionButton>
+              View Invitations{' '}
+              {Array.isArray(invitations) ? invitations.length : 0}
+              <AccordionIcon />
+            </AccordionButton>
+            <AccordionPanel className="max-h-40 overflow-y-scroll">
+              {Array.isArray(invitations) && invitations.length > 0 ? (
+                invitations.map((invite) => {
+                  return <InvitationCard invitation={invite} />;
+                })
+              ) : (
+                <p>No invitations.</p>
+              )}
+            </AccordionPanel>
+          </AccordionItem>
+        </Accordion>
+
         <section className="lg:grid lg:grid-cols-12 lg: gap-4">
           <div className="col-start-1 col-end-10">
             <GameCard className="mb-4" meta={mainTitle} />
             <section className="grid md:grid-cols-2 gap-4 ">
               {games.map((meta) => (
-                <GameCard meta={meta}></GameCard>
+                <GameCard key={meta.id} meta={meta}></GameCard>
               ))}
             </section>
           </div>
-          <div className="hidden lg:block col-start-10 col-end-13 border-slate-300 border-2 rounded-md">
-            <header className="py-2 px-4 border-b-2">
-              <h2>Lobby</h2>
-            </header>
-            <div className="pt-4 px-4">
-              <p className="border-slate-300 text-center">Empty</p>
-            </div>
-          </div>
+          <Lobby />
         </section>
       </main>
     </div>
