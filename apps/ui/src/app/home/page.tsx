@@ -47,10 +47,6 @@ export default function Index() {
   } = usePendingInvitations();
   const logoutMutation = useLogout();
 
-  if (statusError) {
-    logoutMutation.mutate();
-  }
-
   const handleLogout = () => {
     logoutMutation.mutate();
   };

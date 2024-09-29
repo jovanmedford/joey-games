@@ -1,32 +1,18 @@
 'use client';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { QueryClient } from '@tanstack/react-query';
-import { useToast } from '@chakra-ui/react';
-import { UserDto } from '@joey-games/lib';
+import { JoeyGamesError, UserDto } from '@joey-games/lib';
 import { Invitation } from '@prisma/client';
 import { useSocket } from '../socket-context';
 
-const queryClient = new QueryClient();
-
 export function useLogin() {
   const router = useRouter();
-  const toast = useToast();
-  const socket = useSocket()
+  const socket = useSocket();
   return useMutation({
     mutationFn: login,
     onSuccess: () => {
-      socket.connect()
+      socket.connect();
       router.push('/home');
-    },
-    onError: (data) => {
-      toast({
-        title: 'Login Failed.',
-        description: data.message,
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
-      });
     },
   });
 }
@@ -46,6 +32,7 @@ export function usePendingInvitations() {
 }
 
 export function useLogout() {
+  const queryClient = useQueryClient();
   const router = useRouter();
   return useMutation({
     mutationFn: logout,
@@ -57,21 +44,25 @@ export function useLogout() {
 }
 
 async function fetchPendingInvitations() {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_ORIGIN}/api/invitation/pending`,
-    {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_ORIGIN}/api/invitation/pending`,
+      {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }
+    );
+    if (!response.ok) {
+      const error = await response.json();
+      throw new JoeyGamesError(error.message, response.status);
     }
-  );
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message);
+    return response.json();
+  } catch (e: any) {
+    throw new JoeyGamesError(e.message);
   }
-  return response.json();
 }
 
 async function login({ email, password }: { email: string; password: string }) {
@@ -88,7 +79,7 @@ async function login({ email, password }: { email: string; password: string }) {
   );
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message);
+    throw new JoeyGamesError(error.message, response.status);
   }
   return response.json();
 }
@@ -102,7 +93,7 @@ async function getStatus() {
   );
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message);
+    throw new JoeyGamesError(error.message, response.status);
   }
   return response.json();
 }
@@ -120,6 +111,6 @@ async function logout() {
   );
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message);
+    throw new JoeyGamesError(error.message, response.status);
   }
 }
