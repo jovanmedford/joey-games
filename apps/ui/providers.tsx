@@ -27,7 +27,9 @@ export function Providers({ children }: { children: any }) {
             switch (error.status) {
               case 403:
               case 401:
-                window.location.href = '/';
+                if (window.location.href !== '/') {
+                  window.location.href = '/';
+                }
                 break;
               default:
                 toast({
@@ -45,7 +47,7 @@ export function Providers({ children }: { children: any }) {
             switch (error.status) {
               case 403:
               case 401:
-                window.location.href = '/';
+                // window.location.href = '/';
                 break;
               default:
                 toast({
