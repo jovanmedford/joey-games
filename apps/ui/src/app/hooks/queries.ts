@@ -3,15 +3,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { JoeyGamesError, UserDto } from '@joey-games/lib';
 import { Invitation } from '@prisma/client';
-import { useSocket } from '../socket-context';
 
 export function useLogin() {
   const router = useRouter();
-  const socket = useSocket();
   return useMutation({
     mutationFn: login,
     onSuccess: () => {
-      socket.connect();
       router.push('/home');
     },
   });
@@ -21,6 +18,7 @@ export function useStatus() {
   return useQuery<UserDto>({
     queryKey: ['user'],
     queryFn: getStatus,
+    retry: false
   });
 }
 

@@ -1,9 +1,12 @@
 import { UserDto } from '@joey-games/lib';
 import { Socket } from 'socket.io';
+import { Socket as SocketIoClient } from "socket.io-client"
 import { Request } from 'express';
 import { Invitation, InvitationStatus } from '@prisma/client';
 
 /** Sockets */
+export type ClientSocket = SocketIoClient<ServerToClientEvents, ClientToServerEvents>
+
 export interface ClientToServerEvents {
   create_room: () => void;
   join_room: ({ roomId }: { roomId: string }) => void;

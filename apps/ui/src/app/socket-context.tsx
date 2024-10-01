@@ -1,30 +1,51 @@
-import { ClientToServerEvents, ServerToClientEvents } from '@joey-games/lib';
-import { createContext, useContext } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { useStatus } from './hooks/queries';
+import { socket } from './socket';
 
-const createSocket = () => {
-  let socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-    `${process.env.NEXT_PUBLIC_ORIGIN}`,
-    {
-      autoConnect: false,
-      withCredentials: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 2000,
-      reconnectionDelayMax: 10000,
-    }
-  );
-  return socket;
-};
-
-export const SocketContext = createContext<SocketContextType>(createSocket());
+export const SocketDataContext = createContext<SocketData | undefined>(
+  undefined
+);
 
 export const SocketProvider = ({ children }: { children: any }) => {
-  const socket = createSocket();
+  const [socketData, setSocketData] = useState<SocketData | undefined>(
+    undefined
+  );
+  const { data: user } = useStatus();
+
+  useEffect(() => {
+    if (user && user.email) {
+      socket.connect();
+
+      socket.on('connect', () => {
+        setSocketData({
+          id: socket.id as string,
+          connected: socket.connected,
+        });
+      });
+
+      socket.on('disconnect', () => {
+        setSocketData(undefined);
+      });
+    }
+
+    return () => {
+      socket.off('connect');
+      socket.off('disconnect');
+    };
+  }, [user]);
+
   return (
-    <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
+    <SocketDataContext.Provider value={socketData}>
+      {children}
+    </SocketDataContext.Provider>
   );
 };
 
-export const useSocket = () => useContext(SocketContext);
+export const useSocketData = (): SocketData | undefined => {
+  return useContext(SocketDataContext);
+};
 
-type SocketContextType = Socket<ServerToClientEvents, ClientToServerEvents>;
+type SocketData = {
+  id: string;
+  connected: boolean;
+};

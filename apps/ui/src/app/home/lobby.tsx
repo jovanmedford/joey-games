@@ -1,4 +1,4 @@
-import { Button, Input } from '@chakra-ui/react';
+import { Button, Input, Spinner } from '@chakra-ui/react';
 import {
   Popover,
   PopoverTrigger,
@@ -8,11 +8,12 @@ import {
   PopoverArrow,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { useSocket } from '../socket-context';
+import { useSocketData } from '../socket-context';
+import { socket } from '../socket';
 
 export default function Lobby() {
   const [email, setEmail] = useState('');
-  const socket = useSocket();
+  const socketData = useSocketData();
 
   const handleSendInvitation = (onClose: () => void) => {
     if (!socket) {
@@ -21,10 +22,6 @@ export default function Lobby() {
     socket.emit('ping', 'test');
     socket.emit('send_invitation', email);
     onClose();
-  };
-
-  const handleReconnectClick = () => {
-    socket.connect();
   };
 
   const handleEmailChange = (e: any) => setEmail(e.target.value);
@@ -63,9 +60,13 @@ export default function Lobby() {
           )}
         </Popover>
       </header>
-      <div className="pt-4 px-4">
-        <Button onClick={handleReconnectClick}>Reconnect</Button>
-      </div>
+      {socketData && socketData.connected ? (
+        <div className='text-center mt-2'>{socketData.id}</div>
+      ) : (
+        <div className="pt-4 px-4 text-center">
+          <Spinner />
+        </div>
+      )}
     </div>
   );
 }

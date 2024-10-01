@@ -14,15 +14,15 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { useEffect } from 'react';
-import { useSocket } from '../socket-context';
 import { useQueryClient } from '@tanstack/react-query';
+import { socket } from '../socket';
 
 export default function Index() {
   let queryClient = useQueryClient();
-  let socket = useSocket();
   let mainTitle = gameData[0];
   let games = gameData.slice(1);
   let toast = useToast();
+  const { status, data: user, isError: statusError } = useStatus();
 
   useEffect(() => {
     socket.on('invited', (invitation) => {
@@ -34,12 +34,19 @@ export default function Index() {
       queryClient.invalidateQueries({ queryKey: ['pendingInvitations'] });
     });
 
+    socket.on('joined', (message) => {
+      toast({
+        status: 'info',
+        description: message,
+        title: `Look who's here:`,
+      });
+    })
+
     return () => {
       socket.off('invited');
     };
-  }, [socket]);
+  }, [user, socket]);
 
-  const { status, data: user, isError: statusError } = useStatus();
   const {
     status: invitationStatus,
     data: invitations,
