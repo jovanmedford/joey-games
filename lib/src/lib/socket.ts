@@ -1,4 +1,4 @@
-import { Room, UserDto } from '@joey-games/lib';
+import { SerializableRoom, UserDto } from '@joey-games/lib';
 import { Socket } from 'socket.io';
 import { Socket as SocketIoClient } from 'socket.io-client';
 import { Request } from 'express';
@@ -50,5 +50,5 @@ export type InvitationReply = {
 
 export type JoinedRoom = {
   joinedUser: UserDto;
-  room: Room;
+  room: SerializableRoom;
 };

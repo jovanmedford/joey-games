@@ -16,7 +16,7 @@ export default function Lobby() {
   const socketData = useSocketData();
   const roomData = useRoomData();
 
-  console.log("ROOM", roomData)
+  console.log('ROOM', roomData);
 
   const handleSendInvitation = (onClose: () => void) => {
     if (!socket) {
@@ -63,20 +63,22 @@ export default function Lobby() {
           )}
         </Popover>
       </header>
-      {socketData && socketData.connected ? (
-        <div className="text-center mt-2">{socketData.id}</div>
-      ) : (
-        <div className="pt-4 px-4 text-center">
-          <Spinner />
-        </div>
-      )}
-      {roomData ? (
-        <ul>
-          {Array.from(roomData.players).map(([, player]) => {
-            return <li key={player.email}>{player.username}</li>;
-          })}
-        </ul>
-      ) : null}
+      <div className="py-2 px-4">
+        {socketData && socketData.connected ? (
+          <div className="text-center mt-2">{socketData.id}</div>
+        ) : (
+          <div className="pt-4 px-4 text-center">
+            <Spinner />
+          </div>
+        )}
+        {roomData ? (
+          <ul>
+            {Object.entries(roomData.players).map(([key, player]) => {
+              return <li key={key}>{player.username}</li>;
+            })}
+          </ul>
+        ) : null}
+      </div>
     </div>
   );
 }

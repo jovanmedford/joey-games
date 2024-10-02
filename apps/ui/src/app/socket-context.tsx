@@ -2,16 +2,16 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { useStatus } from './hooks/queries';
 import { socket } from './socket';
 import { useToast } from '@chakra-ui/react';
-import { Room } from '@joey-games/lib';
+import { SerializableRoom } from '@joey-games/lib';
 
 export const SocketDataContext = createContext<SocketData | undefined>(
   undefined
 );
-export const RoomDataContext = createContext<Room | undefined>(undefined);
+export const RoomDataContext = createContext<SerializableRoom | undefined>(undefined);
 
 export const SocketProvider = ({ children }: { children: any }) => {
   const [socketData, setSocketData] = useState<SocketData | undefined>();
-  const [roomData, setRoomData] = useState<Room | undefined>();
+  const [roomData, setRoomData] = useState<SerializableRoom | undefined>();
   const { data: user } = useStatus();
   const toast = useToast();
 
@@ -63,7 +63,7 @@ export const SocketProvider = ({ children }: { children: any }) => {
       socket.off('joined');
       socket.off('disconnect');
     };
-  }, [user]);
+  }, [user, roomData]);
 
   return (
     <SocketDataContext.Provider value={socketData}>
@@ -78,7 +78,7 @@ export const useSocketData = (): SocketData | undefined => {
   return useContext(SocketDataContext);
 };
 
-export const useRoomData = (): Room | undefined => {
+export const useRoomData = (): SerializableRoom | undefined => {
   return useContext(RoomDataContext);
 };
 

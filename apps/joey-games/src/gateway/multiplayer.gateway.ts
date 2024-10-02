@@ -93,11 +93,11 @@ export class MultiplayerGateway
       let room = this.roomMgr.findRoomByUserStatus(user.email, 'reconnecting');
       if (room) {
         client.join(room.id);
+        room.setPlayerStatus(client.request.session.user.email, 'connected');
         client.emit('joined', {
           joinedUser: user,
-          room,
+          room: room.getSerializableRoomData(),
         });
-        room.setPlayerStatus(client.request.session.user.email, 'connected');
         this.logger.log(`Client ${client.id} is in ${room.id}.`);
       }
       this.removeDisconnectTimer(existingConnection.id);
@@ -254,7 +254,7 @@ export class MultiplayerGateway
       room.setPlayerStatus(playerData.email, 'connected');
       this.server.to(reply.roomId).emit('joined', {
         joinedUser: invitee,
-        room,
+        room: room.getSerializableRoomData(),
       });
     }
 
