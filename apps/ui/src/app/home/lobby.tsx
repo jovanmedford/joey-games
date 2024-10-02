@@ -8,12 +8,15 @@ import {
   PopoverArrow,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { useSocketData } from '../socket-context';
+import { useRoomData, useSocketData } from '../socket-context';
 import { socket } from '../socket';
 
 export default function Lobby() {
   const [email, setEmail] = useState('');
   const socketData = useSocketData();
+  const roomData = useRoomData();
+
+  console.log("ROOM", roomData)
 
   const handleSendInvitation = (onClose: () => void) => {
     if (!socket) {
@@ -61,12 +64,19 @@ export default function Lobby() {
         </Popover>
       </header>
       {socketData && socketData.connected ? (
-        <div className='text-center mt-2'>{socketData.id}</div>
+        <div className="text-center mt-2">{socketData.id}</div>
       ) : (
         <div className="pt-4 px-4 text-center">
           <Spinner />
         </div>
       )}
+      {roomData ? (
+        <ul>
+          {Array.from(roomData.players).map(([, player]) => {
+            return <li key={player.email}>{player.username}</li>;
+          })}
+        </ul>
+      ) : null}
     </div>
   );
 }

@@ -34,13 +34,6 @@ export default function Index() {
       queryClient.invalidateQueries({ queryKey: ['pendingInvitations'] });
     });
 
-    socket.on('joined', (message) => {
-      toast({
-        status: 'info',
-        description: message,
-        title: `Look who's here:`,
-      });
-    })
 
     return () => {
       socket.off('invited');

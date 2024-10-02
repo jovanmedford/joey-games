@@ -1,9 +1,4 @@
-import {
-  PlayerData,
-  PlayerStatus,
-  Result,
-  Room,
-} from '@joey-games/lib';
+import { PlayerData, PlayerStatus, Result, Room } from '@joey-games/lib';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { getNewPlayerData } from '../lib/utils';
@@ -21,7 +16,64 @@ export class RoomMgrService {
   }
 
   deleteRoom(roomId: string) {
-    return this.rooms.delete(roomId)
+    return this.rooms.delete(roomId);
+  }
+
+  printAllRooms() {
+    console.log('Room Data');
+    console.log('--------------');
+    this.rooms.forEach((room) => {
+      console.group();
+      console.log(room.id);
+      console.log(room.host);
+      console.log(room.currentActivity);
+      room.players.forEach((player) => {
+        console.group();
+        console.log(player.email);
+        console.log(player.status);
+        console.log(player.currentRoom);
+        console.groupEnd();
+      });
+      console.groupEnd();
+    });
+  }
+
+  printRoom(roomId: string) {
+    let room = this.getRoom(roomId);
+    if (!room) {
+      console.log('Room does not exist.');
+      return;
+    }
+
+    console.group();
+    console.log(room.id);
+    console.log(room.host);
+    console.log(room.currentActivity);
+    room.players.forEach((player) => {
+      console.group();
+      console.log(player.email);
+      console.log(player.status);
+      console.log(player.currentRoom);
+      console.groupEnd();
+    });
+    console.groupEnd();
+  }
+
+  findRoomByUser(userEmail: string) {
+    for (let [, room] of this.rooms) {
+      if (room.players.has(userEmail)) {
+        return room;
+      }
+    }
+  }
+
+  findRoomByUserStatus(userEmail: string, status: PlayerStatus) {
+    for (let [, room] of this.rooms) {
+      let player = room.players.get(userEmail);
+      if (player && player.status == status) {
+        return room;
+      }
+    }
   }
 
   async createRoom(host: string): Promise<Result<Room>> {
