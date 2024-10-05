@@ -7,7 +7,6 @@ import {
 } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState } from 'react';
-import { SocketProvider } from './src/app/socket-context';
 import { JoeyGamesError } from '@joey-games/lib';
 import { useToast } from '@chakra-ui/react';
 
@@ -75,10 +74,8 @@ export function Providers({ children }: { children: any }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SocketProvider>
         {children}
         <ReactQueryDevtools />
-      </SocketProvider>
     </QueryClientProvider>
   );
 }

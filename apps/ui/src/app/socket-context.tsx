@@ -1,3 +1,5 @@
+"use client"
+
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useStatus } from './hooks/queries';
 import { socket } from './socket';
@@ -62,8 +64,9 @@ export const SocketProvider = ({ children }: { children: any }) => {
       socket.off('exception');
       socket.off('joined');
       socket.off('disconnect');
+      socket.disconnect()
     };
-  }, [user, roomData]);
+  }, [user]);
 
   return (
     <SocketDataContext.Provider value={socketData}>
