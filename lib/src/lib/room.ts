@@ -16,10 +16,14 @@ export class Room {
 
   setPlayerStatus(playerId: string, status: PlayerStatus) {
     let player = this.players.get(playerId);
-    if (player) {
+
+    if (!player) {
+      console.log('Player not found');
+      return
+    }
+    
+    if (player.status != 'disconnected') {
       player.status = status;
-    } else {
-      console.log('Player not found.');
     }
   }
 
@@ -28,7 +32,7 @@ export class Room {
       id: this.id,
       currentActivity: this.currentActivity,
       host: this.host,
-      players: Object.fromEntries(this.players)
+      players: Object.fromEntries(this.players),
     };
   }
 }
