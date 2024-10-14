@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Invitation  } from '@prisma/client';
+import { Invitation } from '@prisma/client';
 import { InvitationReply } from '@joey-games/lib';
-
+import { RoomMgrService } from '../room-mgr/room-mgr.service';
 
 @Injectable()
 export class InvitationService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private roomMgr: RoomMgrService) {}
 
   async createInvitation(to: string, roomId: string) {
     try {
@@ -59,14 +59,17 @@ export class InvitationService {
 
   async findAllPendingInvitations(to: string) {
     try {
-      let pendingInvitation: Invitation[] =
+      let pendingInvitations: Invitation[] =
         await this.prisma.invitation.findMany({
           where: {
             to,
             status: null,
           },
         });
-      return pendingInvitation;
+      let invitationsWithRoom = pendingInvitations.filter((invitation) =>
+        this.roomMgr.getRoom(invitation.roomId)
+      );
+      return invitationsWithRoom;
     } catch (e) {
       console.log(e);
     }
