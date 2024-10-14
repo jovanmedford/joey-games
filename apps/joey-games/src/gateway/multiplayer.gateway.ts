@@ -18,6 +18,7 @@ import { RoomMgrService } from '../room-mgr/room-mgr.service';
 import { InvitationService } from '../invitation/invitation.service';
 import { AuthenticatedSocket, InvitationReply } from '@joey-games/lib';
 import { bufferPeriod } from '../lib/constants';
+import { UsersService } from '../users/users.service';
 
 @UseGuards(GatewayGuard)
 @WebSocketGateway()
@@ -34,7 +35,8 @@ export class MultiplayerGateway
   constructor(
     private eventEmitter: EventEmitter2,
     private roomMgr: RoomMgrService,
-    private invitationService: InvitationService
+    private invitationService: InvitationService,
+    private userService: UsersService
   ) {
     this.connectionMap = new Map();
     this.disconnectionMap = new Map();
@@ -178,6 +180,10 @@ export class MultiplayerGateway
      * 3. Create a new invitation
      * 4. Emit invited
      */
+    let inviteeUser = await this.userService.findUser(inviteeEmail)
+    if (!inviteeUser) {
+      throw new WsException("User not found.")
+    }
 
     let sender = client.request.session.user;
     let inviteeClient = this.connectionMap.get(inviteeEmail);
