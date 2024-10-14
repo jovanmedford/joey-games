@@ -10,11 +10,13 @@ import {
 import { useState } from 'react';
 import { useRoomData, useSocketData } from '../socket-context';
 import { socket } from '../socket';
+import { useStatus } from '../hooks/queries';
 
 export default function Lobby() {
   const [email, setEmail] = useState('');
   const socketData = useSocketData();
   const roomData = useRoomData();
+  const { data: user } = useStatus();
 
   console.log('ROOM', roomData);
 
@@ -35,9 +37,11 @@ export default function Lobby() {
         <Popover>
           {({ onClose }) => (
             <>
-              <PopoverTrigger>
-                <Button>Add user</Button>
-              </PopoverTrigger>
+              {!roomData || (roomData && roomData.host === user?.email) ? (
+                <PopoverTrigger>
+                  <Button>Add user</Button>
+                </PopoverTrigger>
+              ) : null}
               <PopoverContent>
                 <PopoverArrow />
                 <PopoverBody bg="gray.50">
@@ -74,7 +78,9 @@ export default function Lobby() {
         {roomData ? (
           <ul>
             {Object.entries(roomData.players).map(([key, player]) => {
-              return <li key={key}>{player.username}</li>;
+              if (player.email !== user?.email) {
+                return <li key={key}>{player.username} [{player.status}]</li>;
+              }
             })}
           </ul>
         ) : null}

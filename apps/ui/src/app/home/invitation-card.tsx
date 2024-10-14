@@ -1,19 +1,21 @@
 import { Button } from '@chakra-ui/react';
 import { Invitation, InvitationStatus } from '@prisma/client';
 import { socket } from '../socket';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function InvitationCard({
   invitation,
 }: {
   invitation: Invitation;
 }) {
-
+  let queryClient = useQueryClient();
   let handleResponseClick = (responseStatus: InvitationStatus) => {
     socket.emit('reply_to_invitation', {
       invitationId: invitation.id,
       roomId: invitation.roomId,
       status: responseStatus,
     });
+    queryClient.invalidateQueries({ queryKey: ['pendingInvitations'] });
   };
 
   return (
