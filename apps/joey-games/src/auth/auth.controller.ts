@@ -17,12 +17,14 @@ import { LoginDto, SignupDto } from './dto';
 import { AuthenticatedRequest, UserDto } from '@joey-games/lib';
 import { Response } from 'express';
 import { SessionService } from '../session/session.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private eventEmitter: EventEmitter2
   ) {}
 
   @Post('login')
@@ -71,6 +73,7 @@ export class AuthController {
 
   @Post('logout')
   logout(@Req() req: any, @Res() res: Response) {
+    this.eventEmitter.emit("auth.logout", req.session.user)
     req.session.user = null;
     req.session.save((err) => {
       if (err) console.log(err);

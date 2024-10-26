@@ -1,7 +1,16 @@
-import { PlayerData, PlayerStatus, Result, Room } from '@joey-games/lib';
+import {
+  AuthenticatedSocket,
+  PlayerData,
+  PlayerStatus,
+  Result,
+  Room,
+  UserDto,
+} from '@joey-games/lib';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { getNewPlayerData } from '../lib/utils';
+import { OnEvent } from '@nestjs/event-emitter';
+import { Server } from 'socket.io';
 
 @Injectable()
 export class RoomMgrService {
@@ -20,7 +29,7 @@ export class RoomMgrService {
   }
 
   printAllRooms() {
-    console.log('Room Data');
+    console.log('All Room Data');
     console.log('--------------');
     this.rooms.forEach((room) => {
       console.group();
@@ -110,10 +119,72 @@ export class RoomMgrService {
     return { success: true, data: newPlayer };
   }
 
-  joinRoom(user: string, roomId: string) {
-    // 2. Verify that the user is in the room
-    // 3. Add the user to the room
+  setPlayerStatus(email: string, status: PlayerStatus) {
+    for (let [, room] of this.rooms) {
+      if (room.players.has(email)) {
+        room.setPlayerStatus(email, status);
+      }
+    }
   }
 
-  leaveRoom() {}
+  /** -- Event Handlers */
+
+  @OnEvent('client.connected')
+  handleClientConnected(client: AuthenticatedSocket, server: Server) {
+    let user = client.request.session.user;
+    let room = this.findRoomByUserStatus(user.email, 'reconnecting');
+    if (room) {
+      client.join(room.id);
+      room.setPlayerStatus(user.email, 'connected');
+      let player = room?.players.get(user.email);
+      server.to(room.id).emit('room_update', {
+        player,
+        room: room.getSerializableRoomData(),
+      });
+    }
+  }
+
+  @OnEvent('client.inactive')
+  handleClientInactive(client: AuthenticatedSocket, server: Server) {
+    let user = client.request.session.user;
+    for (let roomId of client.rooms) {
+      let room = this.getRoom(roomId);
+      let player = room?.players.get(user.email);
+      if (player && player.status === 'connected') {
+        room.setPlayerStatus(user.email, 'reconnecting');
+        server.to(room.id).emit('room_update', {
+          player,
+          room: room.getSerializableRoomData(),
+        });
+      }
+    }
+  }
+
+  @OnEvent('client.disconnected')
+  handleClientDisonnected(roomIds: string[], user: UserDto, server: Server) {
+    for (let roomId of roomIds) {
+      let room = this.getRoom(roomId);
+      if (!room) continue;
+
+      let player = room?.players.get(user.email);
+      if (!player) continue
+      
+      room.setPlayerStatus(user.email, 'disconnected')
+
+      if (room.shouldCleanUp()) {
+        this.deleteRoom(room.id);
+        continue
+      }
+      
+      server.to(room.id).emit('room_update', {
+        player,
+        room: room.getSerializableRoomData(),
+      });
+    }
+  }
+
+  @OnEvent('auth.logout')
+  handlePlayerLogout(user: UserDto) {
+    this.setPlayerStatus(user.email, 'disconnected');
+  }
 }

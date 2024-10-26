@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useStatus } from './hooks/queries';
@@ -9,7 +9,9 @@ import { SerializableRoom } from '@joey-games/lib';
 export const SocketDataContext = createContext<SocketData | undefined>(
   undefined
 );
-export const RoomDataContext = createContext<SerializableRoom | undefined>(undefined);
+export const RoomDataContext = createContext<SerializableRoom | undefined>(
+  undefined
+);
 
 export const SocketProvider = ({ children }: { children: any }) => {
   const [socketData, setSocketData] = useState<SocketData | undefined>();
@@ -36,21 +38,40 @@ export const SocketProvider = ({ children }: { children: any }) => {
         });
       });
 
-      socket.on('joined', ({joinedUser, room}) => {
-        if (joinedUser.username === user?.username) {
+      socket.on('room_update', (update) => {
+        if (update.player.status == 'connected') {
+          if (update.player.username === user?.username) {
+            toast({
+              status: 'info',
+              description: `You joined a new room.`,
+              title: `Update`,
+            });
+          } else {
+            toast({
+              status: 'info',
+              description: `${update.player.username} has joined the room.`,
+              title: `Look who's here:`,
+            });
+          }
+        }
+
+        if (update.player.status == "disconnected") {
           toast({
             status: 'info',
-            description: `You joined a new room.`,
+            description: `${update.player.username} has left the room.`,
             title: `Update`,
           });
-        } else {
+        }
+
+        if (update.player.status == "reconnecting") {
           toast({
             status: 'info',
-            description: `${joinedUser.username} has joined the room.`,
-            title: `Look who's here:`,
+            description: `${update.player.username} is trying to reconnect...`,
+            title: `Update`,
           });
         }
-        setRoomData(room);
+
+        setRoomData(update.room);
       });
 
       socket.on('disconnect', () => {
@@ -64,7 +85,8 @@ export const SocketProvider = ({ children }: { children: any }) => {
       socket.off('exception');
       socket.off('joined');
       socket.off('disconnect');
-      socket.disconnect()
+      socket.off('room_update');
+      socket.disconnect();
     };
   }, [user]);
 

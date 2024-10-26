@@ -1,4 +1,4 @@
-import { SerializableRoom, UserDto } from '@joey-games/lib';
+import { PlayerData, Room, SerializableRoom, UserDto } from '@joey-games/lib';
 import { Socket } from 'socket.io';
 import { Socket as SocketIoClient } from 'socket.io-client';
 import { Request } from 'express';
@@ -15,6 +15,7 @@ export interface ClientToServerEvents {
   join_room: ({ roomId }: { roomId: string }) => void;
   send_invitation: (to: string) => void;
   reply_to_invitation: ({ invitationId, status }: InvitationReply) => void;
+  room_update: (update: RoomUpdate) => void;
   ping: (message: string) => void;
 }
 
@@ -23,6 +24,7 @@ export interface ServerToClientEvents {
   new_room: (id: string) => void;
   invited: (invitation: Invitation) => void;
   joined: (joinedRoom: JoinedRoom) => void;
+  room_update: (update: RoomUpdate) => void;
   pong: (message: string) => void;
 }
 
@@ -52,3 +54,8 @@ export type JoinedRoom = {
   joinedUser: UserDto;
   room: SerializableRoom;
 };
+
+export type RoomUpdate = {
+  player: PlayerData
+  room: SerializableRoom
+}

@@ -16,7 +16,7 @@ import { RoomGuard } from '../guards/room.guard';
 import { GatewayGuard } from '../guards/gateway.guard';
 import { RoomMgrService } from '../room-mgr/room-mgr.service';
 import { InvitationService } from '../invitation/invitation.service';
-import { AuthenticatedSocket, InvitationReply } from '@joey-games/lib';
+import { AuthenticatedSocket, InvitationReply, UserDto } from '@joey-games/lib';
 import { bufferPeriod } from '../lib/constants';
 import { UsersService } from '../users/users.service';
 
@@ -52,16 +52,18 @@ export class MultiplayerGateway
     clearTimeout(disconnectTimer);
   }
 
-  disconnectClientCleanup(client: AuthenticatedSocket) {
+  disconnectClientCleanup({
+    client,
+    user,
+    roomIds,
+  }: {
+    client: AuthenticatedSocket;
+    user: UserDto;
+    roomIds: string[];
+  }) {
     this.removeDisconnectTimer(client.id);
-    for (let roomId of client.rooms) {
-      let room = this.roomMgr.getRoom(roomId);
-      if (room) {
-        room.setPlayerStatus(client.request.session.user.email, 'disconnected');
-      }
-    }
-    this.connectionMap.delete(client.request.session.user.email);
-    this.eventEmitter.emit('client.disconnected', client);
+    this.connectionMap.delete(user.email);
+    this.eventEmitter.emit('client.disconnected', roomIds, user, this.server);
   }
 
   handleConnection(client: AuthenticatedSocket) {
@@ -79,56 +81,38 @@ export class MultiplayerGateway
 
     // Handle reconnected instance
     if (client.recovered) {
-      for (let roomId of client.rooms) {
-        let room = this.roomMgr.getRoom(roomId);
-        if (room) {
-          room.setPlayerStatus(client.request.session.user.email, 'connected');
-        }
-      }
       this.removeDisconnectTimer(client.id);
-      return this.eventEmitter.emit('client.recovered', client);
     }
 
     // Handle new connection with the same email (Refresh page)
     if (this.connectionMap.has(user.email)) {
       let existingConnection = this.connectionMap.get(user.email);
-      let room = this.roomMgr.findRoomByUserStatus(user.email, 'reconnecting');
-      if (room) {
-        client.join(room.id);
-        room.setPlayerStatus(client.request.session.user.email, 'connected');
-        client.emit('joined', {
-          joinedUser: user,
-          room: room.getSerializableRoomData(),
-        });
-        this.logger.log(`Client ${client.id} is in ${room.id}.`);
-      }
       this.removeDisconnectTimer(existingConnection.id);
     }
 
-    this.eventEmitter.emit('client.connected', client);
+    this.eventEmitter.emit('client.connected', client, this.server);
     this.connectionMap.set(client.request.session.user.email, client);
   }
 
   // Registered in handleConnection
   handleDisconnecting(client: AuthenticatedSocket, reason) {
-    this.logger.debug(`Disconnecting:...${client.id} - ${reason}`);
     let user = client.request.session.user;
-
-    for (let roomId of client.rooms) {
-      let room = this.roomMgr.getRoom(roomId);
-      let player = room?.players.get(user.email);
-      if (player && player.status === 'connected') {
-        this.logger.debug(`${user.email} is reconnecting.`);
-        room.setPlayerStatus(user.email, 'reconnecting');
-      }
-    }
+    let userCpy = { ...user };
+    let roomsCpy = [...client.rooms];
+    this.logger.debug(`Disconnecting:...${client.id} - ${reason}`);
 
     if (!this.disconnectionMap.has(client.id)) {
       let disconnectTimer = setTimeout(() => {
-        this.disconnectClientCleanup(client);
+        this.disconnectClientCleanup({
+          client,
+          user: userCpy,
+          roomIds: roomsCpy,
+        });
       }, bufferPeriod);
       this.disconnectionMap.set(client.id, disconnectTimer);
     }
+
+    this.eventEmitter.emit('client.inactive', client, this.server);
   }
 
   handleDisconnect(client: AuthenticatedSocket) {
@@ -136,7 +120,6 @@ export class MultiplayerGateway
     this.logger.log(
       `DISCONNECTED. Number of sockets connected: ${this.server.sockets.sockets.size}`
     );
-    this.eventEmitter.emit('client.inactive', client);
   }
 
   printState(message: string) {
@@ -180,9 +163,9 @@ export class MultiplayerGateway
      * 3. Create a new invitation
      * 4. Emit invited
      */
-    let inviteeUser = await this.userService.findUser(inviteeEmail)
+    let inviteeUser = await this.userService.findUser(inviteeEmail);
     if (!inviteeUser) {
-      throw new WsException("User not found.")
+      throw new WsException('User not found.');
     }
 
     let sender = client.request.session.user;
@@ -245,8 +228,6 @@ export class MultiplayerGateway
       throw new WsException('Room no longer exists.');
     }
 
-    console.log('Replied to room:', room);
-
     if (!playerData) {
       throw new WsException("You don't have access to this room.");
     }
@@ -258,10 +239,12 @@ export class MultiplayerGateway
 
       client.join(reply.roomId);
       room.setPlayerStatus(playerData.email, 'connected');
-      this.server.to(reply.roomId).emit('joined', {
-        joinedUser: invitee,
+      this.server.to(reply.roomId).emit('room_update', {
+        player: { ...invitee, status: 'connected' },
         room: room.getSerializableRoomData(),
       });
+
+      console.log('Replied to room:', room);
     }
 
     this.invitationService.updateInvitationStatus(reply);

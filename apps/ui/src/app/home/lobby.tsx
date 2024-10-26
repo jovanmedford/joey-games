@@ -78,8 +78,8 @@ export default function Lobby() {
         {roomData ? (
           <ul>
             {Object.entries(roomData.players).map(([key, player]) => {
-              if (player.email !== user?.email) {
-                return <li key={key}>{player.username} [{player.status}]</li>;
+              if (player.email !== user?.email && player.status == "connected") {
+                return <li key={key}>{player.username}</li>;
               }
             })}
           </ul>

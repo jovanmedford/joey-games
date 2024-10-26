@@ -35,6 +35,16 @@ export class Room {
       players: Object.fromEntries(this.players),
     };
   }
+
+  // Check the statuses of each player; if all inactive or disconnected then delete
+  shouldCleanUp(): boolean {
+    for (let [_,player] of this.players) {
+      if (player.status == "connected" || player.status == "reconnecting") {
+        return false
+      }
+    }
+    return true
+  }
 }
 
 export interface SerializableRoom {
